@@ -275,33 +275,176 @@ class DES {
             string ciphertext = inverse_initial_permutation(combined_text);
     
             return ciphertext;
-        }
-};
+    }
     
+    string decrypt(const string& input) {
+        // Apply initial permutation outside class
+        string perm = initial_permutation(input);
+    
+        // Split into left and right parts
+        string left = perm.substr(0, 32);
+        string right = perm.substr(32, 32);
+    
+        // 16 Feistel rounds with reversed round keys
+        for (int i = 15; i >= 0; i--) {
+            // Expand right half to 48 bits
+            string right_expanded = "";
+            for (int j = 0; j < 48; j++) {
+                right_expanded += right[expansion_table[j] - 1];
+            }
+    
+            // XOR with round key
+            string xored = Xor(round_keys[i], right_expanded);
+    
+            // S-box substitution
+            string res = "";
+            for (int j = 0; j < 8; j++) {
+                string row1 = xored.substr(j * 6, 1) + xored.substr(j * 6 + 5, 1);
+                int row = convert_binary_to_decimal(row1);
+    
+                string col1 = xored.substr(j * 6 + 1, 4);
+                int col = convert_binary_to_decimal(col1);
+    
+                int val = substition_boxes[j][row][col];
+                res += convert_decimal_to_binary(val);
+            }
+    
+            // Permutation after S-box
+            string perm2 = "";
+            for (int j = 0; j < 32; j++) {
+                perm2 += res[permutation_tab[j] - 1];
+            }
+    
+            // XOR permuted result with left, then swap
+            string new_right = Xor(perm2, left);
+            left = right;
+            right = new_right;
+        }
+    
+        // Swap final halves
+        string combined_text = right + left;
+    
+        // Apply inverse initial permutation outside class
+        string plaintext = inverse_initial_permutation(combined_text);
+    
+        return plaintext;
+    }
+};
+
+// Helper function for zero padding
+string zero_pad_block(const string& input) {
+    if (input.length() == 64) return input;
+    return input + string(64 - input.length(), '0');
+}
+
 // Main function
 int main() {
-    // Example plaintext (64 bits)
-    string plaintext = "0001001000110100010101100111100010011010101111001101111011110001";
+    int mode;
+    cout << "Chon mode:" << endl;
+    cout << "1 = DES encrypt" << endl;
+    cout << "2 = DES decrypt" << endl;
+    cout << "3 = TripleDES encrypt" << endl;
+    cout << "4 = TripleDES decrypt" << endl;
+    cin >> mode;
     
-    // Example key (64 bits)
-    string key = "0001001100110100010101110111100110011011101111001101111111110001";
-    
-    // Generate round keys
-    KeyGenerator keygen(key);
-    keygen.generateRoundKeys(); 
-    
-    vector<string> roundKeys = keygen.getRoundKeys();
-    
-    // Create DES object
-    DES des(roundKeys);
-    
-    // Encrypt
-    string ciphertext = des.encrypt(plaintext);
-    
-    cout << "Ciphertext: " << ciphertext << endl;
-    
-    return 0;
-}
+    if (mode == 1) {
+        // DES encrypt
+        string plaintext;
+        string key;
+        cin >> plaintext >> key;
+        
+        // Generate round keys
+        KeyGenerator keygen(key);
+        keygen.generateRoundKeys();
+        vector<string> roundKeys = keygen.getRoundKeys();
+        DES des(roundKeys);
+        
+        // Multi-block encryption with zero padding
+        string result = "";
+        for (size_t i = 0; i < plaintext.length(); i += 64) {
+            string block = plaintext.substr(i, 64);
+            block = zero_pad_block(block);
+            result += des.encrypt(block);
+        }
+        
+        cout << result << endl;
+        
+    } else if (mode == 2) {
+        // DES decrypt
+        string ciphertext;
+        string key;
+        cin >> ciphertext >> key;
+        
+        // Generate round keys
+        KeyGenerator keygen(key);
+        keygen.generateRoundKeys();
+        vector<string> roundKeys = keygen.getRoundKeys();
+        DES des(roundKeys);
+        
+        // Multi-block decryption
+        string result = "";
+        for (size_t i = 0; i < ciphertext.length(); i += 64) {
+            string block = ciphertext.substr(i, 64);
+            result += des.decrypt(block);
+        }
+        
+        cout << result << endl;
+        
+    } else if (mode == 3) {
+        // TripleDES encrypt: E(K3, D(K2, E(K1, P)))
+        string plaintext;
+        string k1, k2, k3;
+        cin >> plaintext >> k1 >> k2 >> k3;
+        
+        // Ensure plaintext is 64 bits
+        plaintext = zero_pad_block(plaintext);
+        
+        // E with K1
+        KeyGenerator keygen1(k1);
+        keygen1.generateRoundKeys();
+        DES des1(keygen1.getRoundKeys());
+        string after_e1 = des1.encrypt(plaintext);
+        
+        // D with K2
+        KeyGenerator keygen2(k2);
+        keygen2.generateRoundKeys();
+        DES des2(keygen2.getRoundKeys());
+        string after_d = des2.decrypt(after_e1);
+        
+        // E with K3
+        KeyGenerator keygen3(k3);
+        keygen3.generateRoundKeys();
+        DES des3(keygen3.getRoundKeys());
+        string ciphertext = des3.encrypt(after_d);
+        
+        cout << ciphertext << endl;
+        
+    } else if (mode == 4) {
+        // TripleDES decrypt: D(K1, E(K2, D(K3, C)))
+        string ciphertext;
+        string k1, k2, k3;
+        cin >> ciphertext >> k1 >> k2 >> k3;
+        
+        // D with K3
+        KeyGenerator keygen3(k3);
+        keygen3.generateRoundKeys();
+        DES des3(keygen3.getRoundKeys());
+        string after_d3 = des3.decrypt(ciphertext);
+        
+        // E with K2
+        KeyGenerator keygen2(k2);
+        keygen2.generateRoundKeys();
+        DES des2(keygen2.getRoundKeys());
+        string after_e2 = des2.encrypt(after_d3);
+        
+        // D with K1
+        KeyGenerator keygen1(k1);
+        keygen1.generateRoundKeys();
+        DES des1(keygen1.getRoundKeys());
+        string plaintext = des1.decrypt(after_e2);
+        
+        cout << plaintext << endl;
+    }
 
     
 

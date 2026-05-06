@@ -1,0 +1,27 @@
+DES Roundtrip Test (Encrypt -> Decrypt)
+=======================================
+Date: 2026-05-06
+
+Test: Verify that decrypt(encrypt(plaintext)) == plaintext
+
+Input:
+- Mode 1 (DES encrypt):
+  - Plaintext: 1100110011110000101010101111000011110000110011001010101010101111
+  - Key:       0011001100110011001100110011001100110011001100110011001100110011
+  
+- Mode 2 (DES decrypt):
+  - Ciphertext: (output from encrypt)
+  - Key:        (same key)
+
+Execution Flow:
+1. Encrypt plaintext using 16-round DES -> Ciphertext
+2. Decrypt ciphertext using 16-round DES (reversed round keys) -> Recovered plaintext
+3. Compare: Original plaintext == Recovered plaintext
+
+Result: ✓ SUCCESS
+- Original:  1100110011110000101010101111000011110000110011001010101010101111
+- Recovered: 1100110011110000101010101111000011110000110011001010101010101111
+- Match: YES
+
+Conclusion: DES encryption and decryption are properly inverse operations.
+Data integrity verified: the same plaintext is successfully recovered after encryption and decryption.

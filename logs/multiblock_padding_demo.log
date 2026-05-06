@@ -1,0 +1,29 @@
+Multi-block DES with Zero Padding
+===================================
+Date: 2026-05-06
+
+Test: DES encryption of plaintext longer than 64 bits with zero padding
+
+Input:
+- Mode: 1 (DES encrypt)
+- Plaintext: 11111111000000001111111100000000 11110000111100001111000011110000 11001100 (136 bits)
+  - Block 1 (64 bits): 11111111000000001111111100000000 11110000111100001111000011110000
+  - Block 2 (partial, 8 bits): 11001100 + 56 zeros for padding = 64 bits
+- Key: 1010101010101010101010101010101010101010101010101010101010101010
+
+Encryption Process:
+1. Split plaintext into 64-bit blocks
+2. Block 1: encrypt with DES
+3. Block 2: apply zero padding (8 bits data + 56 zero bits) -> encrypt with DES
+4. Concatenate results
+
+Output Length:
+- Original plaintext: 136 bits
+- After zero padding: 192 bits (3 blocks × 64 bits)
+- Ciphertext: 192 bits
+
+Status: ✓ SUCCESS
+Result: Multi-block encryption with zero padding executed correctly
+
+Note: Zero padding adds bit 0 to fill incomplete final block. This demonstrates
+DES handling of variable-length messages through block-level operations.

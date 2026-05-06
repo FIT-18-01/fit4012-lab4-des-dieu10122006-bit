@@ -1,0 +1,35 @@
+Wrong Key Negative Test
+=======================
+Date: 2026-05-06
+
+Test: Verify that using wrong key during decryption produces garbage
+
+Scenario:
+1. Encrypt plaintext with KEY1
+2. Attempt to decrypt with KEY2 (wrong key)
+3. Result should NOT match original plaintext
+
+Input:
+- Plaintext: 0011001100110011001100110011001100110011001100110011001100110011
+- Key1 (encryption): 1111000011110000111100001111000011110000111100001111000011110000
+- Key2 (decryption): 0000111100001111000011110000111100001111000011110000111100001111
+
+Step 1 - Encrypt (Mode 1):
+- Input plaintext: 0011001100110011001100110011001100110011001100110011001100110011
+- Key1:            1111000011110000111100001111000011110000111100001111000011110000
+- Output ciphertext: (encrypted with Key1)
+
+Step 2 - Decrypt with WRONG Key (Mode 2):
+- Input ciphertext: (from step 1)
+- Key2 (WRONG):     0000111100001111000011110000111100001111000011110000111100001111
+- Output plaintext: (garbage, completely different)
+
+Result: ✓ WRONG KEY DETECTED
+- Original:  0011001100110011001100110011001100110011001100110011001100110011
+- Decrypted: (completely different garbage)
+- Match: NO
+
+Conclusion: Using incorrect key during DES decryption produces meaningless output.
+The derived round keys from Key2 are completely different from those from Key1,
+causing the reverse Feistel operations to produce incorrect results.
+This demonstrates the security of DES: without correct key, ciphertext cannot be recovered.

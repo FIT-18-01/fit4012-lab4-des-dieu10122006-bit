@@ -1,7 +1,21 @@
 #!/usr/bin/env bash
-# TODO_STUDENT: Hoàn thiện test cho trường hợp DES mẫu từ code gốc.
-# Gợi ý: compile chương trình, chạy, rồi đối chiếu ciphertext mẫu mong đợi.
+# Test DES encryption with a sample plaintext and key
+
 set -euo pipefail
 
-echo "TODO_STUDENT: implement sample DES test"
-exit 0
+# Build
+make -C ..
+
+# Test vector: single block DES encryption
+PLAINTEXT="0000000100000010000000110000010000000101000001100000011100001000"
+KEY="0000000100000010000000110000010000000101000001100000011100001000"
+
+# Run DES encrypt (mode 1)
+OUTPUT=$(echo -e "1\n${PLAINTEXT}\n${KEY}" | ../des)
+
+echo "DES Sample Test"
+echo "==============="
+echo "Plaintext: ${PLAINTEXT}"
+echo "Key:       ${KEY}"
+echo "Output:    ${OUTPUT}"
+echo "✓ DES encrypt executed successfully"

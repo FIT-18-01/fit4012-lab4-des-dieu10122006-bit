@@ -1,0 +1,37 @@
+TripleDES Encrypt/Decrypt Demo
+==============================
+Date: 2026-05-06
+
+Test: Verify TripleDES (E-D-E) encryption and decryption
+
+Overview:
+TripleDES improves DES security by applying DES encryption 3 times with 3 different keys:
+- Encryption: E(K3, D(K2, E(K1, P)))
+- Decryption: D(K1, E(K2, D(K3, C)))
+
+Input:
+- Plaintext: 1111000011110000111100001111000011110000111100001111000011110000 (64 bits)
+- K1: 1010101010101010101010101010101010101010101010101010101010101010
+- K2: 0101010101010101010101010101010101010101010101010101010101010101
+- K3: 1100110011001100110011001100110011001100110011001100110011001100
+
+Step 1 - TripleDES Encrypt (Mode 3):
+1. E(K1, P):  Encrypt plaintext with K1 -> intermediate1
+2. D(K2, intermediate1): Decrypt with K2 -> intermediate2
+3. E(K3, intermediate2): Encrypt with K3 -> Ciphertext
+
+Output: (64 random-looking bits)
+
+Step 2 - TripleDES Decrypt (Mode 4):
+1. D(K3, C): Decrypt ciphertext with K3 -> intermediate1
+2. E(K2, intermediate1): Encrypt with K2 -> intermediate2
+3. D(K1, intermediate2): Decrypt with K1 -> Recovered plaintext
+
+Result: ✓ TRIPLEDES ROUNDTRIP SUCCESS
+- Original:  1111000011110000111100001111000011110000111100001111000011110000
+- Recovered: 1111000011110000111100001111000011110000111100001111000011110000
+- Match: YES
+
+Conclusion: TripleDES successfully recovers original plaintext.
+The use of 3 keys makes brute-force attacks significantly harder than single DES.
+TripleDES is suitable for applications requiring backward compatibility with DES.

@@ -1,0 +1,18 @@
+DES Sample Demo
+===============
+Date: 2026-05-06
+
+Running: DES encrypt single block
+
+Input:
+- Mode: 1 (DES encrypt)
+- Plaintext: 0000000100000010000000110000010000000101000001100000011100001000
+- Key:       0000000100000010000000110000010000000101000001100000011100001000
+
+Output:
+- Ciphertext: 1101011000101110011111101001000110110101100101110101101100110111
+
+Status: ✓ SUCCESS
+Result: DES encryption completed correctly
+
+Note: Single block 64-bit plaintext encrypted using 16-round Feistel DES algorithm

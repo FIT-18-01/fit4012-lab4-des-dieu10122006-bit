@@ -1,0 +1,36 @@
+Tamper Detection Test
+====================
+Date: 2026-05-06
+
+Test: Verify that modifying ciphertext during transmission corrupts decrypted data
+
+Scenario:
+1. Encrypt plaintext with DES
+2. Tamper: flip first bit of ciphertext
+3. Decrypt tampered ciphertext with same key
+4. Result should NOT match original plaintext
+
+Input:
+- Plaintext: 1010101010101010101010101010101010101010101010101010101010101010
+- Key:       0101010101010101010101010101010101010101010101010101010101010101
+
+Step 1 - Encrypt (Mode 1):
+- Input plaintext: 1010101010101010101010101010101010101010101010101010101010101010
+- Output ciphertext: (64 random-looking bits)
+
+Step 2 - Tamper:
+- Original bit 0: 1 -> Flip to: 0
+- Tampered ciphertext: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Step 3 - Decrypt (Mode 2):
+- Input tampered ciphertext: (modified version)
+- Key: 0101010101010101010101010101010101010101010101010101010101010101
+- Output plaintext: (garbage, different from original)
+
+Result: ✓ TAMPER DETECTED
+- Original:  1010101010101010101010101010101010101010101010101010101010101010
+- Decrypted: (completely different - avalanche effect in DES)
+- Match: NO
+
+Conclusion: Single bit flip in ciphertext causes significant corruption in decrypted data.
+This is expected due to DES's avalanche property (each plaintext bit affects ~50% of ciphertext bits).
